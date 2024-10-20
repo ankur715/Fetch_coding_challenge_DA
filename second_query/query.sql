@@ -44,20 +44,19 @@ Open-ended Questions:
 */ 
 
 /*  
-	Who are Fetch’s power users?
+	Who are Fetchâ€™s power users?
 	Assumption: Power users are defined as those who have the highest number of transactions.
 	- CTE of receipts per used by joining users and transactions 
 	- Filter CTE to top 3 users for number of receipts as power users
 */
 WITH user_receipts AS (
-	SELECT u.id, COUNT(t.receipt_id) as receipt_cnt, SUM(t.final_sale) as total_sales, DENSE_RANK() OVER (ORDER BY COUNT(t.receipt_id) DESC) as rank
+	SELECT u.id, u.state, u.gender, COUNT(t.receipt_id) as receipt_cnt, SUM(t.final_sale) as total_sales, DENSE_RANK() OVER (ORDER BY COUNT(t.receipt_id) DESC) as rank
 	FROM users u
 	JOIN transactions t ON u.id = t.user_id
-	GROUP BY u.id
+	GROUP BY u.id, u.state, u.gender
 )
-SELECT ur.id, u.state, u.gender, ur.receipt_cnt, ur.total_sales
+SELECT ur.id, ur.state, ur.gender, ur.receipt_cnt, ur.total_sales
 FROM user_receipts ur
-LEFT JOIN users u ON ur.id=u.id
 WHERE ur.rank <= 3
 ORDER BY ur.rank ASC
 ;
